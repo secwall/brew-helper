@@ -1,6 +1,6 @@
 use clap::{Parser, Subcommand};
 use serde::Deserialize;
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 use std::process::Command;
 
 #[derive(Parser)]
@@ -41,7 +41,9 @@ struct BrewInstalledVersion {
 
 #[derive(Deserialize)]
 struct BrewFormula {
+    full_name: String,
     dependencies: Vec<String>,
+    oldnames: Vec<String>,
     build_dependencies: Vec<String>,
     versions: BrewFormulaVersion,
     installed: Vec<BrewInstalledVersion>,
@@ -63,6 +65,7 @@ fn get_brew_list() -> Vec<String> {
 }
 
 fn get_brew_deps(formulas: &Vec<String>) -> HashSet<String> {
+    let mut renames = HashMap::new();
     let mut ret = HashSet::new();
     let out = Command::new("brew")
         .arg("info")
@@ -79,6 +82,9 @@ fn get_brew_deps(formulas: &Vec<String>) -> HashSet<String> {
     let parsed: Vec<BrewFormula> =
         serde_json::from_str(&out_str).expect("unable to parse brew info result");
     for formula in parsed {
+        for oldname in formula.oldnames {
+            renames.insert(oldname, formula.full_name.clone());
+        }
         for dep in formula.dependencies {
             ret.insert(dep);
         }
@@ -92,6 +98,11 @@ fn get_brew_deps(formulas: &Vec<String>) -> HashSet<String> {
         }
         for dep in formula.build_dependencies {
             ret.insert(dep);
+        }
+    }
+    for (oldname, newname) in renames.into_iter() {
+        if ret.contains(&newname) {
+            ret.insert(oldname);
         }
     }
     ret
