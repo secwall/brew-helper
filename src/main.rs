@@ -17,10 +17,10 @@ enum Commands {
     #[command(about = "Remove all formulas not used as deps")]
     List {},
     #[command(arg_required_else_help = true)]
-    #[command(about = "Remove a formula with all unused deps")]
+    #[command(about = "Remove formulas with all unused deps")]
     RMDep {
-        #[arg(value_name = "Name for a target formula")]
-        name: Option<String>,
+        #[arg(value_name = "Names for target formulas")]
+        names: Vec<String>,
     },
 }
 
@@ -170,9 +170,9 @@ fn main() {
                 println!("{}", formula);
             }
         }
-        Some(Commands::RMDep { name }) => {
-            if let Some(name) = name.as_deref() {
-                remove_brew_formula_with_deps(name.to_string())
+        Some(Commands::RMDep { names }) => {
+            for name in names {
+                remove_brew_formula_with_deps(name.clone())
             }
         }
         None => {}
