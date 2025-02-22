@@ -4,7 +4,7 @@ description = "A little brew helper to remove non needed formulas"
 version = "0.0.1"
 license = "MIT"
 repository = "https://github.com/secwall/brew-helper"
-edition = "2021"
+edition = "2024"
 
 [dependencies]
 clap = { version = "4.5.30", features = ["derive"] }
