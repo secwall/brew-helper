@@ -167,7 +167,7 @@ fn main() {
         Some(Commands::List {}) => {
             let formulas = get_non_dep_formulas();
             for formula in formulas {
-                println!("{}", formula);
+                println!("{formula}");
             }
         }
         Some(Commands::RMDep { names }) => {
